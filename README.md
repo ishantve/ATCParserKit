@@ -113,7 +113,7 @@ omitted. `type` is one of: `heading`, `headingTurn`, `relativeTurn`,
 
 - [x] **Phase 1** — pure-Swift core + public API + JSON contract + tests
 - [ ] **Phase 2** — SPM + CocoaPods publish (`v1.0.0`)
-- [ ] **Phase 3** — React Native (iOS) wrapper (`@ishantve/atc-parser-kit`)
+- [x] **Phase 3** — React Native (iOS) wrapper ([`@ishantve/atc-parser-kit`](platforms/react-native))
 - [ ] **Phase 4** — Unity (iOS) native plugin
 - [ ] **Phase 5** — CI/CD + full multi-platform docs
 

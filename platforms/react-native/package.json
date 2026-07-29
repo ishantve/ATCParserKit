@@ -1,0 +1,46 @@
+{
+  "name": "@ishantve/atc-parser-kit",
+  "version": "1.0.0",
+  "description": "React Native (iOS) wrapper for ATCParserKit — parse ATC voice commands into structured JSON. Logic runs natively in Swift.",
+  "main": "lib/index.js",
+  "module": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "react-native": "src/index.tsx",
+  "source": "src/index.tsx",
+  "files": [
+    "src",
+    "lib",
+    "ios",
+    "atc-parser-kit.podspec",
+    "README.md"
+  ],
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "build": "tsc",
+    "prepare": "tsc"
+  },
+  "keywords": [
+    "react-native",
+    "ios",
+    "atc",
+    "air-traffic-control",
+    "parser",
+    "voice-commands"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ishantve/ATCParserKit.git",
+    "directory": "platforms/react-native"
+  },
+  "homepage": "https://github.com/ishantve/ATCParserKit",
+  "author": "Ishant <ishant@zibaltech.com>",
+  "license": "MIT",
+  "peerDependencies": {
+    "react": "*",
+    "react-native": "*"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.0",
+    "typescript": "^5.3.0"
+  }
+}
