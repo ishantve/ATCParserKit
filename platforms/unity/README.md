@@ -14,7 +14,7 @@ Add to your project's `Packages/manifest.json`:
 ```json
 {
   "dependencies": {
-    "com.ishantve.atcparserkit": "https://github.com/ishantve/ATCParserKit.git?path=platforms/unity#1.0.0"
+    "com.ishantve.atcparserkit": "https://github.com/ishantve/ATCParserKit.git?path=platforms/unity#main"
   }
 }
 ```
@@ -22,7 +22,7 @@ Add to your project's `Packages/manifest.json`:
 …or **Window → Package Manager → + → Add package from git URL**:
 
 ```
-https://github.com/ishantve/ATCParserKit.git?path=platforms/unity#1.0.0
+https://github.com/ishantve/ATCParserKit.git?path=platforms/unity#main
 ```
 
 ## Usage
