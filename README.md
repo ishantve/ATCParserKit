@@ -1,5 +1,6 @@
 # ATCParserKit
 
+[![CI](https://github.com/ishantve/ATCParserKit/actions/workflows/ci.yml/badge.svg)](https://github.com/ishantve/ATCParserKit/actions/workflows/ci.yml)
 [![CocoaPods](https://img.shields.io/cocoapods/v/ATCParserKit.svg)](https://cocoapods.org/pods/ATCParserKit)
 [![Swift](https://img.shields.io/badge/Swift-5.9%2B-orange.svg)](https://swift.org)
 [![Platforms](https://img.shields.io/badge/platforms-iOS%2015%2B%20%7C%20macOS%2012%2B-blue.svg)](#requirements)
@@ -50,6 +51,34 @@ dependencies: [
 ```ruby
 pod 'ATCParserKit', '~> 1.0'
 ```
+
+### React Native (iOS)
+
+```sh
+npm install @ishant89/atc-parser-kit && cd ios && pod install
+```
+
+```ts
+import { parse } from '@ishant89/atc-parser-kit';
+const result = await parse('aca 29 speed 280');
+```
+
+See [platforms/react-native](platforms/react-native/README.md).
+
+### Unity (iOS)
+
+Add via **Package Manager → Add package from git URL**:
+
+```
+https://github.com/ishantve/ATCParserKit.git?path=platforms/unity#main
+```
+
+```csharp
+using ATCParserKit;
+var result = Parser.Parse("aca 29 speed 280");
+```
+
+See [platforms/unity](platforms/unity/README.md).
 
 ## Usage
 
@@ -115,7 +144,13 @@ omitted. `type` is one of: `heading`, `headingTurn`, `relativeTurn`,
 - [x] **Phase 2** — SPM + CocoaPods publish (`v1.0.0`)
 - [x] **Phase 3** — React Native (iOS) wrapper ([`@ishant89/atc-parser-kit`](platforms/react-native))
 - [x] **Phase 4** — Unity (iOS) native plugin ([`com.ishantve.atcparserkit`](platforms/unity))
-- [ ] **Phase 5** — CI/CD + full multi-platform docs
+- [x] **Phase 5** — CI/CD ([Actions](.github/workflows)) + multi-platform docs
+
+## Contributing
+
+Issues and PRs welcome. The golden rule: **parsing logic stays in the Swift
+core only** — wrappers are thin bridges. See [CONTRIBUTING.md](CONTRIBUTING.md)
+for the layout, dev workflow, JSON-contract policy, and release process.
 
 ## License
 

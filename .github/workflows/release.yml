@@ -1,0 +1,57 @@
+name: Release
+
+# Fires on a version tag (e.g. 1.1.0). SPM needs no publish step — the tag IS
+# the release. This job publishes the CocoaPods, npm, and Unity artifacts and
+# creates a GitHub Release with the xcframework attached.
+on:
+  push:
+    tags: ['[0-9]+.[0-9]+.[0-9]+']
+
+jobs:
+  cocoapods:
+    name: Publish CocoaPods
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+      - name: Push podspec to trunk
+        env:
+          COCOAPODS_TRUNK_TOKEN: ${{ secrets.COCOAPODS_TRUNK_TOKEN }}
+        run: pod trunk push ATCParserKit.podspec --allow-warnings
+
+  npm:
+    name: Publish npm (React Native)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: platforms/react-native
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org
+      - name: Publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish
+
+  github-release:
+    name: GitHub Release + xcframework
+    runs-on: macos-14
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode_15.4.app
+      - name: Build xcframework
+        run: ./scripts/build-xcframework.sh
+      - name: Zip xcframework
+        run: |
+          cd platforms/unity/Runtime/Plugins/iOS
+          zip -ry ATCParserFFI.xcframework.zip ATCParserFFI.xcframework
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: platforms/unity/Runtime/Plugins/iOS/ATCParserFFI.xcframework.zip
+          generate_release_notes: true

@@ -4,9 +4,14 @@ All notable changes to this project are documented here. The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and this project
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.1.0] - 2026-07-29
 
 ### Added
+- **CI/CD** (`.github/workflows`): `ci.yml` (Swift build/test, podspec lint,
+  xcframework build + symbol check, RN typecheck) and `release.yml` (tag-driven
+  CocoaPods + npm publish and a GitHub Release with the xcframework).
+- `scripts/release.sh` — stamps one version across SPM/CocoaPods/npm/Unity.
+- `CONTRIBUTING.md` and a multi-platform top-level README.
 - **React Native (iOS) wrapper** under `platforms/react-native`
   (`@ishant89/atc-parser-kit`): RCT native module bridging the Swift core, a
   typed TypeScript API (`parse` + wire types), podspec, and a usage example.

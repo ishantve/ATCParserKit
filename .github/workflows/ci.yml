@@ -1,0 +1,66 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  swift:
+    name: Swift · build + test
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode_15.4.app
+      - name: Build
+        run: swift build -v
+      - name: Test
+        run: swift test -v
+
+  cocoapods:
+    name: CocoaPods · lint
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+      - name: Lint podspec
+        run: pod lib lint ATCParserKit.podspec --allow-warnings
+
+  xcframework:
+    name: Unity · build xcframework
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode_15.4.app
+      - name: Build xcframework
+        run: ./scripts/build-xcframework.sh
+      - name: Verify exported C symbols
+        run: |
+          LIB=platforms/unity/Runtime/Plugins/iOS/ATCParserFFI.xcframework/ios-arm64/libATCParserFFI.a
+          nm "$LIB" | grep -q "T _atc_parser_parse"
+          nm "$LIB" | grep -q "T _atc_parser_free"
+          echo "C symbols present."
+
+  react-native:
+    name: React Native · typecheck
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: platforms/react-native
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install (types for typecheck)
+        run: npm install --no-save typescript @types/react react-native
+      - name: Typecheck
+        run: npx tsc --noEmit
+      - name: Validate package
+        run: npm pack --dry-run
