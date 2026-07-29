@@ -58,9 +58,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - name: Install (types for typecheck)
-        run: npm install --no-save typescript @types/react react-native
-      - name: Typecheck
-        run: npx tsc --noEmit
+      - name: Typecheck (isolated — react-native types are shimmed)
+        run: npx -y -p typescript@5.3.3 tsc --noEmit
       - name: Validate package
-        run: npm pack --dry-run
+        run: npm pack --dry-run --legacy-peer-deps
