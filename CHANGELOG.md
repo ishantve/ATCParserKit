@@ -11,6 +11,11 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   (`@ishant89/atc-parser-kit`): RCT native module bridging the Swift core, a
   typed TypeScript API (`parse` + wire types), podspec, and a usage example.
   No parsing logic in JavaScript — fully delegated to Swift.
+- **Unity (iOS) native plugin** under `platforms/unity`
+  (`com.ishantve.atcparserkit`): a new `ATCParserFFI` C-ABI target (`@_cdecl`
+  `atc_parser_parse` / `atc_parser_free`), a static `xcframework` built via
+  `scripts/build-xcframework.sh`, and a C# `Parser.Parse` wrapper
+  (`DllImport("__Internal")` → JSON → `JsonUtility`). No parsing logic in C#.
 
 ## [1.0.0] - 2026-07-29
 

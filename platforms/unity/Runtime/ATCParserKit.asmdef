@@ -1,0 +1,9 @@
+{
+    "name": "ATCParserKit",
+    "rootNamespace": "ATCParserKit",
+    "references": [],
+    "includePlatforms": ["iOS", "Editor"],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "autoReferenced": true
+}

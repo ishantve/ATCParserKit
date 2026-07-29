@@ -1,0 +1,14 @@
+{
+  "name": "com.ishantve.atcparserkit",
+  "version": "1.0.0",
+  "displayName": "ATCParserKit",
+  "description": "Parse ATC voice-command transcripts into structured results on iOS. Native Swift parser exposed to C# via a bundled xcframework. iOS only.",
+  "unity": "2021.3",
+  "keywords": ["atc", "air-traffic-control", "parser", "ios", "voice"],
+  "author": {
+    "name": "Ishant",
+    "email": "ishant@zibaltech.com",
+    "url": "https://github.com/ishantve/ATCParserKit"
+  },
+  "license": "MIT"
+}
