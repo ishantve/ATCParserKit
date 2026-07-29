@@ -8,9 +8,16 @@
 [![License](https://img.shields.io/badge/license-MIT-lightgrey.svg)](LICENSE)
 
 A dependency-free **ATC voice-command parser** written in Swift. It turns an
-air-traffic-control transcript into a structured, JSON-ready result — a callsign
-plus a typed list of commands — with the parsing logic living **once, in Swift**,
-and reused across native apps, React Native, and Unity.
+air-traffic-control transcript (e.g. _"air canada 125 climb flight level 250
+turn left heading 270"_) into a structured, JSON-ready result — a callsign plus
+a typed list of commands (heading, flight level, altitude block, speed
+floor/ceiling, hold, localizer intercept). The parsing logic lives **once, in
+Swift**, and every other platform — Swift Package Manager, CocoaPods, React
+Native, Unity — is a thin wrapper over that same core, so there is a single
+source of truth and no duplicated logic.
+
+**Current release: `1.1.1`.** Available on Swift Package Manager and Unity (git)
+today; CocoaPods and npm serve the latest published version (see each section).
 
 ```swift
 import ATCParserKit
@@ -42,7 +49,7 @@ let result = try ATCParser().parse("air canada 125 climb flight level 250 turn l
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/ishantve/ATCParserKit.git", from: "1.0.0")
+    .package(url: "https://github.com/ishantve/ATCParserKit.git", from: "1.1.1")
 ]
 ```
 
@@ -70,7 +77,7 @@ See [platforms/react-native](platforms/react-native/README.md).
 Add via **Package Manager → Add package from git URL**:
 
 ```
-https://github.com/ishantve/ATCParserKit.git?path=platforms/unity#main
+https://github.com/ishantve/ATCParserKit.git?path=platforms/unity#1.1.1
 ```
 
 ```csharp
