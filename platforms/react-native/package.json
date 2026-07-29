@@ -16,6 +16,9 @@
   "scripts": {
     "typecheck": "tsc --noEmit"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "keywords": [
     "react-native",
     "ios",
