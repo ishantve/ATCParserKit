@@ -1,6 +1,6 @@
 {
   "name": "@ishant89/atc-parser-kit",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "React Native (iOS) wrapper for ATCParserKit — parse ATC voice commands into structured JSON. Logic runs natively in Swift.",
   "main": "src/index.tsx",
   "module": "src/index.tsx",
