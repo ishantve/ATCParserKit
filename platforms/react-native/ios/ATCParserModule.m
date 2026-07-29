@@ -1,6 +1,6 @@
 //
 //  ATCParserModule.m
-//  @ishantve/atc-parser-kit
+//  @ishant89/atc-parser-kit
 //
 //  Exposes the Swift ATCParserModule to the React Native bridge.
 //

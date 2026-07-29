@@ -4,7 +4,7 @@ import type { ParserResult } from './types';
 export * from './types';
 
 const LINKING_ERROR =
-  `The package '@ishantve/atc-parser-kit' doesn't seem to be linked. Make sure:\n\n` +
+  `The package '@ishant89/atc-parser-kit' doesn't seem to be linked. Make sure:\n\n` +
   '- You rebuilt the app after installing the package\n' +
   "- You ran `pod install` in the ios/ directory\n" +
   '- You are not using Expo Go (this package has native iOS code)\n';
@@ -30,7 +30,7 @@ const ATCParserModule = NativeModules.ATCParserModule
  */
 export async function parse(command: string): Promise<ParserResult> {
   if (Platform.OS !== 'ios') {
-    throw new Error('@ishantve/atc-parser-kit currently supports iOS only.');
+    throw new Error('@ishant89/atc-parser-kit currently supports iOS only.');
   }
   const json: string = await ATCParserModule.parse(command);
   return JSON.parse(json) as ParserResult;

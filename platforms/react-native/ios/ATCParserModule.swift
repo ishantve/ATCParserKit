@@ -1,6 +1,6 @@
 //
 //  ATCParserModule.swift
-//  @ishantve/atc-parser-kit
+//  @ishant89/atc-parser-kit
 //
 //  React Native (old-bridge) native module. A thin wrapper that hands the
 //  transcript to the shared ATCParserKit Swift core and returns the parsed

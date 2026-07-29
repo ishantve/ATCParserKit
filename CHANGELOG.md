@@ -8,7 +8,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 - **React Native (iOS) wrapper** under `platforms/react-native`
-  (`@ishantve/atc-parser-kit`): RCT native module bridging the Swift core, a
+  (`@ishant89/atc-parser-kit`): RCT native module bridging the Swift core, a
   typed TypeScript API (`parse` + wire types), podspec, and a usage example.
   No parsing logic in JavaScript — fully delegated to Swift.
 

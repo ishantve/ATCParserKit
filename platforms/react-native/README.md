@@ -1,4 +1,4 @@
-# @ishantve/atc-parser-kit
+# @ishant89/atc-parser-kit
 
 React Native (iOS) wrapper for [ATCParserKit](https://github.com/ishantve/ATCParserKit).
 Parses ATC voice-command transcripts into structured, typed results. **The
@@ -11,7 +11,7 @@ and native share one implementation.
 ## Installation
 
 ```sh
-npm install @ishantve/atc-parser-kit
+npm install @ishant89/atc-parser-kit
 cd ios && pod install
 ```
 
@@ -20,7 +20,7 @@ Autolinking pulls in the native module and the `ATCParserKit` Swift core pod.
 ## Usage
 
 ```ts
-import { parse } from '@ishantve/atc-parser-kit';
+import { parse } from '@ishant89/atc-parser-kit';
 
 const result = await parse('air canada 125 climb flight level 250 turn left heading 270');
 // {
@@ -36,7 +36,7 @@ const result = await parse('air canada 125 climb flight level 250 turn left head
 ### Types
 
 ```ts
-import type { ParserResult, ParsedCommand, CommandType, TurnDirection } from '@ishantve/atc-parser-kit';
+import type { ParserResult, ParsedCommand, CommandType, TurnDirection } from '@ishant89/atc-parser-kit';
 ```
 
 `CommandType` is one of: `heading`, `headingTurn`, `relativeTurn`,

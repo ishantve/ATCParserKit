@@ -1,12 +1,12 @@
 /**
- * Minimal usage example for @ishantve/atc-parser-kit.
+ * Minimal usage example for @ishant89/atc-parser-kit.
  *
  * Drop this into a React Native app (iOS) that has the package installed
- * (`npm install @ishantve/atc-parser-kit && cd ios && pod install`).
+ * (`npm install @ishant89/atc-parser-kit && cd ios && pod install`).
  */
 import React, { useState } from 'react';
 import { SafeAreaView, TextInput, Button, Text, ScrollView } from 'react-native';
-import { parse, type ParserResult } from '@ishantve/atc-parser-kit';
+import { parse, type ParserResult } from '@ishant89/atc-parser-kit';
 
 export default function App() {
   const [text, setText] = useState(
