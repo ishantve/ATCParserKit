@@ -8,6 +8,7 @@
 //
 
 import Foundation
+import React
 import ATCParserKit
 
 @objc(ATCParserModule)
