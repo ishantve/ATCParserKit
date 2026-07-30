@@ -79,6 +79,58 @@ public struct TemplateSet: Equatable, Sendable {
         self.diagnostics = diagnostics
     }
 
+    // MARK: - Corrections
+
+    /// A replacement for one template's text.
+    ///
+    /// The payload contains mistakes that cannot be worked around by sanitising —
+    /// code 320's readback names a placeholder its own request never supplies, so
+    /// the reply can never be spoken. Waiting for the backend means the phrase
+    /// stays broken; editing the bundled copy means the fix disappears the moment
+    /// the payload is fetched for real. So corrections are applied here, and the
+    /// diagnostics still report the underlying problem.
+    ///
+    /// Which templates need correcting is deployment knowledge, not parser
+    /// knowledge: the list lives with the caller, only the mechanism lives here.
+    public struct Correction: Equatable, Sendable {
+        public let id: String
+        public let template: String?
+        public let readback: String?
+
+        public init(id: String, template: String? = nil, readback: String? = nil) {
+            self.id = id
+            self.template = template
+            self.readback = readback
+        }
+    }
+
+    /// A copy with the given replacements applied. Corrections naming a template
+    /// that is not present are ignored, so a stale list cannot break loading.
+    public func applying(_ corrections: [Correction]) -> TemplateSet {
+        guard !corrections.isEmpty else { return self }
+        let byID = Dictionary(corrections.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
+
+        let corrected = templates.map { template -> CommandTemplate in
+            guard let correction = byID[template.id] else { return template }
+            return CommandTemplate(
+                id: template.id,
+                code: template.code,
+                category: template.category,
+                pattern: correction.template.map(TemplatePattern.init) ?? template.pattern,
+                readback: correction.readback.map(TemplatePattern.init) ?? template.readback,
+                speaker: template.speaker,
+                keyboardShortcut: template.keyboardShortcut,
+                comments: template.comments,
+                isEnabled: template.isEnabled)
+        }
+        return TemplateSet(templates: corrected, diagnostics: diagnostics)
+    }
+
+    init(templates: [CommandTemplate], diagnostics: [Diagnostic]) {
+        self.templates = templates
+        self.diagnostics = diagnostics
+    }
+
     // MARK: - Lookup
 
     /// Category keys in the order used by `templates`.
