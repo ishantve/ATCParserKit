@@ -80,7 +80,10 @@ public struct SlotRegistry: Equatable, Sendable {
             "DME STATION": .fix,
             "HOLDING FIX": .fix,
             "WAYPOINT/FIX": .fix,
-            "VOR NAME": .fix,
+            // A station's name, spoken as a name. Not `.fix`: that spells a code out
+            // phonetically, which is right for "PJ" and wrong for "DELHI". It appears
+            // only in a readback, never in a request, so nothing validates against it.
+            "VOR NAME": .freeText,
             "POSITION": .freeText,
             "REASON": .freeText,
             "INTENTIONS": .freeText,
