@@ -70,6 +70,18 @@ public enum SlotKind: String, Equatable, Sendable, CaseIterable {
         }
     }
 
+    /// Digits a value is *read* with, which is not always how many it must have.
+    ///
+    /// A flight level is always spoken as three digits — FL90 is "zero nine zero" —
+    /// but it need not arrive as three, so padding belongs to rendering rather than to
+    /// the parsing constraint below.
+    public var spokenDigitWidth: Int? {
+        switch self {
+        case .flightLevel: return 3
+        default:           return digitWidth
+        }
+    }
+
     /// Exact digit count when the phraseology fixes one, else nil.
     public var digitWidth: Int? {
         switch self {

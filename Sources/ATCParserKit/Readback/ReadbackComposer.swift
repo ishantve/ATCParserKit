@@ -34,9 +34,19 @@ public enum ReadbackComposer {
     /// shorter reply.
     public static func compose(_ commands: [RecognizedCommand],
                                callsign: String?) -> String? {
-        let parts = commands
-            .filter { $0.readback.isRequired }
-            .compactMap { spokenBody(of: $0.readback.primary) }
+        compose(commands.filter(\.readback.isRequired).map(\.readback.primary),
+                callsign: callsign)
+    }
+
+    /// The spoken reply for phrases the caller has already chosen.
+    ///
+    /// Not every command replies with its primary phrase: a confirmation question
+    /// answers with its alternate when the aircraft contradicts what was asked, and
+    /// only the caller knows which is true. Composition is the same either way, so it
+    /// takes the phrases rather than deciding for itself.
+    public static func compose(_ phrases: [Phrase], callsign: String?) -> String? {
+        let parts = phrases
+            .compactMap { spokenBody(of: $0) }
             .filter { !$0.isEmpty }
 
         guard !parts.isEmpty else { return nil }

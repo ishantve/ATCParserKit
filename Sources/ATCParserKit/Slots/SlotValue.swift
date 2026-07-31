@@ -156,7 +156,7 @@ extension SlotValue {
         case (.integer(let value), .magnitude):
             return NumberWords.spokenMagnitude(value)
         case (.integer(let value), _):
-            return NumberWords.spokenDigits(value, padTo: kind.digitWidth ?? 0)
+            return NumberWords.spokenDigits(value, padTo: kind.spokenDigitWidth ?? 0)
         case (.runway(let designator), _):
             return spokenRunway(designator)
         case (.fix(let code), .phonetic):
