@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'ATCParserKit'
-  s.version          = '1.2.0'
+  s.version          = '1.3.0'
   s.summary          = 'ATC voice-command parser — pure Swift, cross-platform core.'
   s.description      = <<-DESC
     Parses air-traffic-control voice transcripts into a structured, JSON-ready
