@@ -2,6 +2,7 @@ import { NativeModules, Platform } from 'react-native';
 import type { ParserResult } from './types';
 
 export * from './types';
+export { Recognizer } from './recognizer';
 
 const LINKING_ERROR =
   `The package '@ishant89/atc-parser-kit' doesn't seem to be linked. Make sure:\n\n` +
@@ -36,4 +37,6 @@ export async function parse(command: string): Promise<ParserResult> {
   return JSON.parse(json) as ParserResult;
 }
 
-export default { parse };
+import { Recognizer } from './recognizer';
+
+export default { parse, Recognizer };

@@ -11,8 +11,10 @@ let package = Package(
     targets: [
         .target(name: "ATCParserKit"),
         .target(name: "ATCParserFFI", dependencies: ["ATCParserKit"]),
+        // Depends on the FFI target too: the C boundary is the only place in this package
+        // with manual memory management, and a Unity build is too slow a way to test it.
         .testTarget(name: "ATCParserKitTests",
-                    dependencies: ["ATCParserKit"],
+                    dependencies: ["ATCParserKit", "ATCParserFFI"],
                     resources: [.copy("Fixtures")]),
     ]
 )

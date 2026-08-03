@@ -4,6 +4,46 @@ All notable changes to this project are documented here. The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and this project
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2026-08-03
+
+The template API reaches React Native and Unity. **Additive** — nothing in 1.x or 1.2.0
+changed. Full notes: [docs/releases/1.3.0.md](docs/releases/1.3.0.md).
+
+### Added
+- **Handle-based C ABI** (`ATCParserFFI`): `atc_recognizer_create`,
+  `atc_recognizer_recognize`, `atc_recognizer_diagnostics`, `atc_recognizer_release`.
+  Create/use/release rather than one call, because the payload is decoded once and reused —
+  re-decoding per utterance would be wasteful and would discard the diagnostics, which only
+  exist at decode time. A NULL handle returns NULL instead of trapping; a failed create
+  reports its reason (`decode_failed` vs `null_input`) in a JSON envelope.
+- **Unity:** `Recognizer : IDisposable` with `Create` / `Recognize` / `Diagnostics` /
+  `Dispose`, plus `[Serializable]` result types. The finalizer is a backstop, not the plan.
+- **React Native:** `Recognizer` class (`create` / `recognize` / `diagnostics` / `dispose`)
+  over a new `ATCRecognizerModule`. The handle is an `Int` into a native table, not a pointer:
+  the bridge carries only JSON values, and a stale number must not become a wild pointer, so a
+  released handle gives a reported `atc_invalid_handle` error rather than a crash.
+- **Wire format** (`Sources/ATCParserKit/Wire/RecognitionWire.swift`) for recognition results
+  and payload diagnostics. Shaped by Unity's `JsonUtility`, the tightest consumer: flat
+  objects, no sum types, **no nulls** (absent string → `""`, absent number → `0` beside a
+  `has…` flag), no top-level arrays. `readbacks` arrive already grouped per aircraft,
+  `isActionable` is precomputed, and integer slots carry both `value` and `intValue` — so
+  neither TypeScript nor C# reimplements phraseology or re-parses numbers.
+- Tests: **170**, up from 151 — the new ones drive the C ABI as Unity does (handle lifecycle,
+  two independent handles, NULL safety, failure reporting) and pin the wire shape (no nulls for
+  any input, every key always present, `outcome` one of three known strings, `isActionable`
+  always agreeing with it, and deterministic output).
+
+### Changed
+- CI verifies all **six** exported C symbols in **both** xcframework slices, rather than two
+  symbols in one.
+
+### Notes
+- 1.2.0 stamped the npm and UPM packages to `1.2.0` while their code still exposed the 1.1.1
+  API. Those channels were never published at 1.2.0 for that reason; 1.3.0 is the first
+  version where every platform means the same thing.
+- Still iOS-only for React Native and Unity: they bridge a compiled Swift binary, and Android
+  would mean a second implementation of the parser.
+
 ## [1.2.0] - 2026-08-03
 
 Template-driven recognition. **Additive — nothing in 1.x changed**, so every existing

@@ -41,11 +41,20 @@ jobs:
       - name: Build xcframework
         run: ./scripts/build-xcframework.sh
       - name: Verify exported C symbols
+        # Every symbol the Unity C# binding P/Invokes by name. A missing one fails at
+        # runtime inside the engine with no compile-time warning, so it is checked here
+        # rather than discovered in a game.
         run: |
-          LIB=platforms/unity/Runtime/Plugins/iOS/ATCParserFFI.xcframework/ios-arm64/libATCParserFFI.a
-          nm "$LIB" | grep -q "T _atc_parser_parse"
-          nm "$LIB" | grep -q "T _atc_parser_free"
-          echo "C symbols present."
+          for SLICE in ios-arm64 ios-arm64_x86_64-simulator; do
+            LIB="platforms/unity/Runtime/Plugins/iOS/ATCParserFFI.xcframework/$SLICE/libATCParserFFI.a"
+            for SYMBOL in atc_parser_parse atc_parser_free \
+                          atc_recognizer_create atc_recognizer_recognize \
+                          atc_recognizer_diagnostics atc_recognizer_release; do
+              nm "$LIB" | grep -q "T _$SYMBOL" || {
+                echo "::error::missing $SYMBOL in $SLICE"; exit 1; }
+            done
+            echo "$SLICE: all 6 C symbols present."
+          done
 
   react-native:
     name: React Native · typecheck

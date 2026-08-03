@@ -13,12 +13,12 @@ air-traffic-control transcript into a structured, JSON-ready result. The parsing
 Native, Unity — is a thin wrapper over that same core, so there is a single source of truth
 and no duplicated logic.
 
-**Current release: `1.2.0`** ([release notes](docs/releases/1.2.0.md)). Available on Swift
+**Current release: `1.3.0`** ([release notes](docs/releases/1.3.0.md)). Available on Swift
 Package Manager and Unity (git) today; CocoaPods and npm serve the latest published version
 (see each section).
 
-There are **two ways to use it**, and they coexist — 1.2.0 added the second without changing
-the first.
+There are **two ways to use it**, and they coexist. Both are available on **every** platform —
+Swift, React Native and Unity.
 
 ### 1. Built-in commands — one call, no setup
 
@@ -46,8 +46,21 @@ for (callsign, spoken) in result.composedReadbacks() { speak(spoken) }
 ```
 
 Recognises whatever the payload defines — several instructions and several aircraft in one
-transmission, with the readback to speak back. Swift-only for now; see
-[the release notes](docs/releases/1.2.0.md) for why the wrappers do not expose it yet.
+transmission, with the readback to speak back.
+
+The same thing from TypeScript and C#. Both hold a payload, so both have a lifetime:
+
+```ts
+const recognizer = await Recognizer.create(payloadJson);   // React Native
+const result = await recognizer.recognize(transcript);
+recognizer.dispose();
+```
+```csharp
+using (var recognizer = Recognizer.Create(payloadJson))    // Unity
+{
+    var result = recognizer.Recognize(transcript);
+}
+```
 
 > **Scope:** the parser core is pure `Foundation` and runs anywhere Swift runs.
 > The React Native and Unity wrappers are **iOS-only** (they bridge the compiled
@@ -77,6 +90,7 @@ transmission, with the readback to speak back. Swift-only for now; see
 - Typed slots with contextual resolution and separate parse / spoken digit widths (FL090 is
   read "zero nine zero").
 - Payload diagnostics, so a broken template is reported rather than silently mis-parsed.
+- Available from Swift, TypeScript and C# — one implementation, three bindings.
 
 ## Installation
 
@@ -84,14 +98,14 @@ transmission, with the readback to speak back. Swift-only for now; see
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/ishantve/ATCParserKit.git", from: "1.2.0")
+    .package(url: "https://github.com/ishantve/ATCParserKit.git", from: "1.3.0")
 ]
 ```
 
 ### CocoaPods
 
 ```ruby
-pod 'ATCParserKit', '~> 1.2'
+pod 'ATCParserKit', '~> 1.3'
 ```
 
 ### React Native (iOS)
@@ -101,11 +115,9 @@ npm install @ishant89/atc-parser-kit && cd ios && pod install
 ```
 
 ```ts
-import { parse } from '@ishant89/atc-parser-kit';
+import { parse, Recognizer } from '@ishant89/atc-parser-kit';
 const result = await parse('aca 29 speed 280');
 ```
-
-Exposes the built-in-command API only; the template API is Swift-only for now.
 
 See [platforms/react-native](platforms/react-native/README.md).
 
@@ -114,15 +126,13 @@ See [platforms/react-native](platforms/react-native/README.md).
 Add via **Package Manager → Add package from git URL**:
 
 ```
-https://github.com/ishantve/ATCParserKit.git?path=platforms/unity#1.2.0
+https://github.com/ishantve/ATCParserKit.git?path=platforms/unity#1.3.0
 ```
 
 ```csharp
 using ATCParserKit;
 var result = Parser.Parse("aca 29 speed 280");
 ```
-
-Exposes the built-in-command API only; the template API is Swift-only for now.
 
 See [platforms/unity](platforms/unity/README.md).
 
@@ -174,9 +184,10 @@ for leftover in result.unrecognized { log("not understood:", leftover) }
 
 ## JSON contract
 
-This is the wire format of `parseToJSON` — the built-in-command API, and the boundary the
-React Native and Unity wrappers cross. The template API returns Swift values and has no wire
-format yet; giving it one is part of bridging it to those platforms.
+This is the wire format of `parseToJSON` — the built-in-command API. The template API has its
+own, documented in
+[`Sources/ATCParserKit/Wire/RecognitionWire.swift`](Sources/ATCParserKit/Wire/RecognitionWire.swift);
+both are the boundary the React Native and Unity wrappers cross.
 
 ```json
 {
@@ -221,8 +232,8 @@ omitted. `type` is one of: `heading`, `headingTurn`, `relativeTurn`,
 - [x] **Phase 4** — Unity (iOS) native plugin ([`com.ishantve.atcparserkit`](platforms/unity))
 - [x] **Phase 5** — CI/CD ([Actions](.github/workflows)) + multi-platform docs
 - [x] **1.2.0** — template-driven recognition, multi-command, readbacks ([notes](docs/releases/1.2.0.md))
-- [ ] **Next** — expose the template API to React Native and Unity (needs a handle-based
-      bridge: create / recognise / release, rather than one string-to-string call)
+- [x] **1.3.0** — the template API on React Native and Unity too, over a handle-based
+      bridge ([notes](docs/releases/1.3.0.md))
 - [ ] **Later** — Android / desktop support (would mean a second implementation; not planned
       while Swift is the single source of truth)
 

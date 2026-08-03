@@ -23,8 +23,49 @@ extern "C" {
  */
 const char *atc_parser_parse(const char *command);
 
-/** Release a string returned by atc_parser_parse(). */
+/** Release a string returned by any function in this header. */
 void atc_parser_free(char *pointer);
+
+/* ---------------------------------------------------------------------------
+ * Template-driven recognition.
+ *
+ * Unlike atc_parser_parse(), this holds state: the phraseology payload is
+ * decoded once and reused, so the boundary is create / use / release.
+ *
+ * Ownership: every returned char* must be released with atc_parser_free(); a
+ * handle must be released with atc_recognizer_release() and never used after.
+ * A handle is not thread-safe — use one per thread or serialise access.
+ * ------------------------------------------------------------------------ */
+
+/**
+ * Decode a phraseology payload and build a recognizer.
+ * @param templates_json  NUL-terminated UTF-8 payload JSON.
+ * @param error_json      Out-param, may be NULL. On failure and when non-NULL,
+ *                        receives a newly-allocated JSON error envelope
+ *                        ({"error":…,"detail":…}) that the caller must free
+ *                        with atc_parser_free().
+ * @return  Opaque handle, or NULL on failure.
+ */
+void *atc_recognizer_create(const char *templates_json, char **error_json);
+
+/**
+ * Recognise one transmission against the handle's payload.
+ * @return  Newly-allocated result JSON (caller frees), or NULL if handle is
+ *          NULL. An unrecognised transcript is not an error: the result has no
+ *          commands and the text under "unrecognized".
+ */
+char *atc_recognizer_recognize(void *handle, const char *transcript);
+
+/**
+ * Problems found in the payload when it was decoded, plus template counts, as
+ * JSON. A broken template otherwise fails silently as an instruction that never
+ * matches, so this is worth logging at startup.
+ * @return  Newly-allocated JSON (caller frees), or NULL if handle is NULL.
+ */
+char *atc_recognizer_diagnostics(void *handle);
+
+/** Release a handle from atc_recognizer_create(). NULL is accepted. */
+void atc_recognizer_release(void *handle);
 
 #ifdef __cplusplus
 }
