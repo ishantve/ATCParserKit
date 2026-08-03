@@ -8,20 +8,21 @@
 [![License](https://img.shields.io/badge/license-MIT-lightgrey.svg)](LICENSE)
 
 A dependency-free **ATC voice-command parser** written in Swift. It turns an
-air-traffic-control transcript (e.g. _"air canada 125 climb flight level 250
-turn left heading 270"_) into a structured, JSON-ready result — a callsign plus
-a typed list of commands (heading, flight level, altitude block, speed
-floor/ceiling, hold, localizer intercept). The parsing logic lives **once, in
-Swift**, and every other platform — Swift Package Manager, CocoaPods, React
-Native, Unity — is a thin wrapper over that same core, so there is a single
-source of truth and no duplicated logic.
+air-traffic-control transcript into a structured, JSON-ready result. The parsing logic lives
+**once, in Swift**, and every other platform — Swift Package Manager, CocoaPods, React
+Native, Unity — is a thin wrapper over that same core, so there is a single source of truth
+and no duplicated logic.
 
-**Current release: `1.1.1`.** Available on Swift Package Manager and Unity (git)
-today; CocoaPods and npm serve the latest published version (see each section).
+**Current release: `1.2.0`** ([release notes](docs/releases/1.2.0.md)). Available on Swift
+Package Manager and Unity (git) today; CocoaPods and npm serve the latest published version
+(see each section).
+
+There are **two ways to use it**, and they coexist — 1.2.0 added the second without changing
+the first.
+
+### 1. Built-in commands — one call, no setup
 
 ```swift
-import ATCParserKit
-
 let result = try ATCParser().parse("air canada 125 climb flight level 250 turn left heading 270")
 // result.callsign == "air canada 125"
 // result.commands == [
@@ -30,18 +31,52 @@ let result = try ATCParser().parse("air canada 125 climb flight level 250 turn l
 // ]
 ```
 
+Eleven command types, compiled in. This is also the API the React Native and Unity wrappers
+expose.
+
+### 2. Your own phraseology — templates as input
+
+```swift
+let templates = try TemplateSet(data: payloadJSON)     // your ICAO wording, your codes
+let recognizer = CommandRecognizer(templates: templates)
+
+let result = recognizer.recognize("air india 123 climb and maintain FL260, speed 300 knots")
+// two commands, each with its category, backend code, filled slots and readback
+for (callsign, spoken) in result.composedReadbacks() { speak(spoken) }
+```
+
+Recognises whatever the payload defines — several instructions and several aircraft in one
+transmission, with the readback to speak back. Swift-only for now; see
+[the release notes](docs/releases/1.2.0.md) for why the wrappers do not expose it yet.
+
 > **Scope:** the parser core is pure `Foundation` and runs anywhere Swift runs.
 > The React Native and Unity wrappers are **iOS-only** (they bridge the compiled
 > Swift binary); Android / desktop / WebGL are not supported in v1.
 
 ## Features
 
+**Both APIs**
+
 - Callsign extraction (airline-agnostic, no lookup table).
-- Commands: heading, forced-direction turn, present heading, flight level,
-  altitude block, speed / speed floor / speed ceiling, hold, localizer intercept.
-- Spoken-digit expansion (`"two seven zero"` → `270`) and ICAO phonetics
-  (`"papa juliet"` → `PJ`).
+- Spoken-digit expansion (`"two seven zero"` → `270`), tens words (`"seventy"` → `70`) and
+  ICAO phonetics (`"papa juliet"` → `PJ`) — speech transcripts arrive as words,
+  inconsistently, and all forms parse to the same value.
+
+**Built-in commands (`ATCParser`)**
+
+- Heading, forced-direction turn, relative turn, present heading, flight level, altitude
+  block, speed / floor / ceiling, hold, localizer intercept.
 - Typed, lossless JSON contract — trivial to consume from JS and C#.
+
+**Template-driven (`CommandRecognizer`)**
+
+- Your phraseology payload is the vocabulary; the library is not recompiled to add a command.
+- Several commands, and several aircraft, in one transmission.
+- Readbacks rendered from the template — including the `Later:` report a pilot owes and the
+  `If not:` answer to a confirmation.
+- Typed slots with contextual resolution and separate parse / spoken digit widths (FL090 is
+  read "zero nine zero").
+- Payload diagnostics, so a broken template is reported rather than silently mis-parsed.
 
 ## Installation
 
@@ -49,14 +84,14 @@ let result = try ATCParser().parse("air canada 125 climb flight level 250 turn l
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/ishantve/ATCParserKit.git", from: "1.1.1")
+    .package(url: "https://github.com/ishantve/ATCParserKit.git", from: "1.2.0")
 ]
 ```
 
 ### CocoaPods
 
 ```ruby
-pod 'ATCParserKit', '~> 1.0'
+pod 'ATCParserKit', '~> 1.2'
 ```
 
 ### React Native (iOS)
@@ -70,6 +105,8 @@ import { parse } from '@ishant89/atc-parser-kit';
 const result = await parse('aca 29 speed 280');
 ```
 
+Exposes the built-in-command API only; the template API is Swift-only for now.
+
 See [platforms/react-native](platforms/react-native/README.md).
 
 ### Unity (iOS)
@@ -77,7 +114,7 @@ See [platforms/react-native](platforms/react-native/README.md).
 Add via **Package Manager → Add package from git URL**:
 
 ```
-https://github.com/ishantve/ATCParserKit.git?path=platforms/unity#1.1.1
+https://github.com/ishantve/ATCParserKit.git?path=platforms/unity#1.2.0
 ```
 
 ```csharp
@@ -85,9 +122,13 @@ using ATCParserKit;
 var result = Parser.Parse("aca 29 speed 280");
 ```
 
+Exposes the built-in-command API only; the template API is Swift-only for now.
+
 See [platforms/unity](platforms/unity/README.md).
 
 ## Usage
+
+### Built-in commands
 
 ```swift
 import ATCParserKit
@@ -108,7 +149,34 @@ for command in result.commands {
 let json = try parser.parseToJSON("aca 29 speed 280")
 ```
 
+### Template-driven
+
+```swift
+// Load the payload once and keep the recognizer; it is a value type and cheap to hold.
+let templates = try TemplateSet(data: try Data(contentsOf: payloadURL))
+for issue in templates.diagnostics { print("payload issue:", issue) }
+
+let recognizer = CommandRecognizer(templates: templates)
+let result = recognizer.recognize(transcript)
+
+// One reply per aircraft, however many instructions it was given.
+for (callsign, spoken) in result.composedReadbacks() { speak(spoken) }
+
+// Only .ok may be acted on — .disabled parsed but is not available, and
+// .invalidValue parsed but the value is out of range. Both still get a reply.
+for command in result.commands where command.isActionable {
+    apply(command.code, command.slots)
+}
+
+// Never silent about what it could not place.
+for leftover in result.unrecognized { log("not understood:", leftover) }
+```
+
 ## JSON contract
+
+This is the wire format of `parseToJSON` — the built-in-command API, and the boundary the
+React Native and Unity wrappers cross. The template API returns Swift values and has no wire
+format yet; giving it one is part of bridging it to those platforms.
 
 ```json
 {
@@ -152,6 +220,11 @@ omitted. `type` is one of: `heading`, `headingTurn`, `relativeTurn`,
 - [x] **Phase 3** — React Native (iOS) wrapper ([`@ishant89/atc-parser-kit`](platforms/react-native))
 - [x] **Phase 4** — Unity (iOS) native plugin ([`com.ishantve.atcparserkit`](platforms/unity))
 - [x] **Phase 5** — CI/CD ([Actions](.github/workflows)) + multi-platform docs
+- [x] **1.2.0** — template-driven recognition, multi-command, readbacks ([notes](docs/releases/1.2.0.md))
+- [ ] **Next** — expose the template API to React Native and Unity (needs a handle-based
+      bridge: create / recognise / release, rather than one string-to-string call)
+- [ ] **Later** — Android / desktop support (would mean a second implementation; not planned
+      while Swift is the single source of truth)
 
 ## Contributing
 
