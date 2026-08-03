@@ -11,6 +11,8 @@ let package = Package(
     targets: [
         .target(name: "ATCParserKit"),
         .target(name: "ATCParserFFI", dependencies: ["ATCParserKit"]),
-        .testTarget(name: "ATCParserKitTests", dependencies: ["ATCParserKit"]),
+        .testTarget(name: "ATCParserKitTests",
+                    dependencies: ["ATCParserKit"],
+                    resources: [.copy("Fixtures")]),
     ]
 )
