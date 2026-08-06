@@ -44,7 +44,9 @@ public struct TranscriptNormalizer: Equatable, Sendable {
         var words: [String] = []
         var punctuatedWordIndices = Set<Int>()
 
-        for chunk in raw.lowercased().split(whereSeparator: \.isWhitespace) {
+        // Step 0: recogniser-quirk fixups (hyphen folding, ICAO spellings, stray
+        // tokens) so every parsing path shares the same cleanup as the display.
+        for chunk in TranscriptCleaner.clean(raw).lowercased().split(whereSeparator: \.isWhitespace) {
             let endsClause = chunk.contains { ",;:.".contains($0) }
             let cleaned = String(chunk.unicodeScalars.filter {
                 CharacterSet.alphanumerics.contains($0)

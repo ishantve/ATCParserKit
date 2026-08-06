@@ -170,8 +170,8 @@ final class SlotTests: XCTestCase {
 
     func testLevelsAndHeadingsReadDigitByDigit() {
         XCTAssertEqual(SlotValue.integer(260).spoken(as: .flightLevel), "two six zero")
-        XCTAssertEqual(SlotValue.integer(90).spoken(as: .heading), "zero nine zero")
-        XCTAssertEqual(SlotValue.integer(300).spoken(as: .speedKnots), "three zero zero")
+        XCTAssertEqual(SlotValue.integer(90).spoken(as: .heading), "zero niner zero")
+        XCTAssertEqual(SlotValue.integer(300).spoken(as: .speedKnots), "tree zero zero")
     }
 
     func testAltitudesReadByMagnitude() {

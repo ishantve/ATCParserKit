@@ -98,18 +98,18 @@ final class NumberWordsTests: XCTestCase {
     func testDigitByDigitReadback() {
         XCTAssertEqual(NumberWords.spokenDigits("260"), "two six zero")
         XCTAssertEqual(NumberWords.spokenDigits("27"), "two seven")
-        XCTAssertEqual(NumberWords.spokenDigits(90, padTo: 3), "zero nine zero")
+        XCTAssertEqual(NumberWords.spokenDigits(90, padTo: 3), "zero niner zero")
     }
 
     func testMagnitudeReadback() {
         XCTAssertEqual(NumberWords.spokenMagnitude(8000), "eight thousand")
-        XCTAssertEqual(NumberWords.spokenMagnitude(8500), "eight thousand five hundred")
+        XCTAssertEqual(NumberWords.spokenMagnitude(8500), "eight thousand fife hundred")
         XCTAssertEqual(NumberWords.spokenMagnitude(12000), "one two thousand")
-        XCTAssertEqual(NumberWords.spokenMagnitude(500), "five hundred")
+        XCTAssertEqual(NumberWords.spokenMagnitude(500), "fife hundred")
     }
 
     func testFrequencyReadback() {
         XCTAssertEqual(NumberWords.spokenDigits("121.5"),
-                       "one two one decimal five")
+                       "one two one decimal fife")
     }
 }

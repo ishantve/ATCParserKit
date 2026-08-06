@@ -149,9 +149,12 @@ enum NumberWords {
 
     // MARK: - Digits → words
 
+    // ICAO radiotelephony digit spellings — headings, levels, callsigns, codes
+    // are all read this way ("tree", "fower", "fife", "niner"); the rest match
+    // plain English. Keeps readback consistent with how the recognizer hears them.
     private static let spokenDigit: [Character: String] = [
-        "0": "zero", "1": "one", "2": "two", "3": "three", "4": "four",
-        "5": "five", "6": "six", "7": "seven", "8": "eight", "9": "nine",
+        "0": "zero", "1": "one", "2": "two", "3": "tree", "4": "fower",
+        "5": "fife", "6": "six", "7": "seven", "8": "eight", "9": "niner",
     ]
 
     /// "260" → "two six zero". Used for levels, headings, speeds, codes —
@@ -159,6 +162,23 @@ enum NumberWords {
     static func spokenDigits(_ text: String) -> String {
         text.compactMap { spokenDigit[$0] ?? (($0 == ".") ? "decimal" : nil) }
             .joined(separator: " ")
+    }
+
+    /// Renders an arbitrary transcript fragment for speech: numeric runs read
+    /// digit-by-digit (via spokenDigits), other words spoken as they are. e.g.
+    /// "emirates 22 5" → "emirates two two fife". Use before handing a raw
+    /// fragment (e.g. an unrecognised "say again" phrase) to a synthesiser, so it
+    /// doesn't read "22" as "twenty two". (Does not change spokenDigits — wraps it.)
+    public static func spokenFragment(_ text: String) -> String {
+        text.split(separator: " ").flatMap { token -> [String] in
+            if token.allSatisfy(\.isNumber) { return [spokenDigits(String(token))] }
+            let letters = String(token.prefix(while: \.isLetter))
+            let digits = String(token.dropFirst(letters.count))
+            guard !letters.isEmpty, !digits.isEmpty, digits.allSatisfy(\.isNumber) else {
+                return [String(token)]
+            }
+            return [letters, spokenDigits(digits)]
+        }.joined(separator: " ")
     }
 
     static func spokenDigits(_ value: Int, padTo width: Int = 0) -> String {

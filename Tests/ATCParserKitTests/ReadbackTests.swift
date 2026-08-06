@@ -33,37 +33,37 @@ final class ReadbackTests: XCTestCase {
     func testLevelsAreReadDigitByDigit() throws {
         let command = try first("air india 123 descend to flight level 260")
         XCTAssertEqual(command.readback.text,
-                       "RADAR DESCEND TO FLIGHT LEVEL two six zero, air india one two three.")
+                       "RADAR DESCEND TO FLIGHT LEVEL two six zero, air india one two tree.")
     }
 
     func testHeadingsKeepTheirLeadingZero() throws {
         let command = try first("air india 123 turn right heading 090")
         XCTAssertEqual(command.readback.text,
-                       "RADAR TURN RIGHT HEADING zero nine zero, air india one two three.")
+                       "RADAR TURN RIGHT HEADING zero niner zero, air india one two tree.")
     }
 
     func testAltitudesAreReadByMagnitude() throws {
         let command = try first("air india 123 climb to eight thousand feet")
         XCTAssertEqual(command.readback.text,
-                       "RADAR CLIMB TO eight thousand FEET, air india one two three.")
+                       "RADAR CLIMB TO eight thousand FEET, air india one two tree.")
     }
 
     func testCallsignDigitsAreNotReadAsAQuantity() throws {
-        // "air india 123" must not become "air india one hundred twenty three".
+        // "air india 123" must not become "air india one hundred twenty tree".
         let command = try first("air india 123 standby")
-        XCTAssertEqual(command.readback.text, "STANDING BY, air india one two three.")
+        XCTAssertEqual(command.readback.text, "STANDING BY, air india one two tree.")
     }
 
     func testGluedCallsignIsSpokenOut() throws {
         let command = try first("aca125 standby")
-        XCTAssertEqual(command.readback.text, "STANDING BY, aca one two five.")
+        XCTAssertEqual(command.readback.text, "STANDING BY, aca one two fife.")
     }
 
     func testSpeedAndRunwayReadbacks() throws {
         XCTAssertEqual(try first("air india 123 reduce speed to 250 knots").readback.text,
-                       "RADAR REDUCE SPEED TO two five zero KNOTS, air india one two three.")
+                       "RADAR REDUCE SPEED TO two fife zero KNOTS, air india one two tree.")
         XCTAssertEqual(try first("air india 123 intercept the localizer runway 27 left").readback.text,
-                       "RADAR INTERCEPT THE LOCALIZER RUNWAY two seven left, air india one two three.")
+                       "RADAR INTERCEPT THE LOCALIZER RUNWAY two seven left, air india one two tree.")
     }
 
     func testHoldingFixIsSpelledOut() throws {
@@ -72,7 +72,7 @@ final class ReadbackTests: XCTestCase {
         XCTAssertEqual(command.readback.text,
                        """
                        PROCEED DIRECT TO papa juliet NDB AND HOLD AS PUBLISHED, \
-                       MAINTAIN FLIGHT LEVEL two six zero, air india one two three.
+                       MAINTAIN FLIGHT LEVEL two six zero, air india one two tree.
                        """)
     }
 
@@ -95,7 +95,7 @@ final class ReadbackTests: XCTestCase {
         // "WILCO, [CALLSIGN]. Later: [CALLSIGN], PASSING [SIGNIFICANT POINT]."
         let command = try first("air india 123 report passing papa juliet")
         XCTAssertEqual(command.code, "316")
-        XCTAssertEqual(command.readback.primary.spoken, "WILCO, air india one two three")
+        XCTAssertEqual(command.readback.primary.spoken, "WILCO, air india one two tree")
         XCTAssertNotNil(command.readback.deferred)
         // "Later:" itself is never spoken.
         XCTAssertFalse(try XCTUnwrap(command.readback.text).lowercased().contains("later"))
@@ -105,7 +105,7 @@ final class ReadbackTests: XCTestCase {
         // "SQUAWKING [CODE], [CALLSIGN]. If incorrect: NEGATIVE, SQUAWKING …"
         let command = try first("air india 123 confirm squawk 4567")
         XCTAssertEqual(command.readback.primary.spoken,
-                       "SQUAWKING four five six seven, air india one two three")
+                       "SQUAWKING fower fife six seven, air india one two tree")
         XCTAssertNotNil(command.readback.alternate)
         XCTAssertFalse(try XCTUnwrap(command.readback.text).lowercased().contains("if incorrect"))
     }
@@ -142,7 +142,7 @@ final class ReadbackTests: XCTestCase {
         let command = try first("air india 123 confirm 260")
         XCTAssertEqual(command.code, "430")
         XCTAssertEqual(command.readback.primary.spoken,
-                       "MAINTAINING two six zero, air india one two three")
+                       "MAINTAINING two six zero, air india one two tree")
         let alternate = try XCTUnwrap(command.readback.alternate)
         XCTAssertEqual(alternate.unresolvedSlots, ["ACTUAL LEVEL"])
         XCTAssertNil(alternate.spoken)
@@ -152,7 +152,7 @@ final class ReadbackTests: XCTestCase {
         let command = try first("air india 123 confirm 260")
         let alternate = try XCTUnwrap(command.readback.alternate)
         XCTAssertEqual(alternate.spoken(filling: ["ACTUAL LEVEL": "two eight zero"]),
-                       "NEGATIVE, two eight zero, air india one two three")
+                       "NEGATIVE, two eight zero, air india one two tree")
     }
 
     func testAReadbackNeedingComputedValuesIsNotSpokenHalfDone() throws {
@@ -170,7 +170,7 @@ final class ReadbackTests: XCTestCase {
     func testDisabledInstructionAnswersUnable() throws {
         let command = try first("air india 123 radar service terminated due weather")
         XCTAssertEqual(command.outcome, .disabled)
-        XCTAssertEqual(command.readback.text, "UNABLE, air india one two three.")
+        XCTAssertEqual(command.readback.text, "UNABLE, air india one two tree.")
     }
 
     func testDisabledReplyCanBeSuppliedByTheCaller() throws {
@@ -178,7 +178,7 @@ final class ReadbackTests: XCTestCase {
                                        disabledReadback: "NOT AVAILABLE, [CALLSIGN].")
         let command = try XCTUnwrap(custom.recognize(
             "air india 123 radar service terminated due weather").commands.first)
-        XCTAssertEqual(command.readback.text, "NOT AVAILABLE, air india one two three.")
+        XCTAssertEqual(command.readback.text, "NOT AVAILABLE, air india one two tree.")
     }
 
     // MARK: - Composition
@@ -191,8 +191,8 @@ final class ReadbackTests: XCTestCase {
         XCTAssertEqual(replies[0].callsign, "air india 123")
         XCTAssertEqual(replies[0].spoken, """
             RADAR CLIMB TO FLIGHT LEVEL two six zero, \
-            RADAR INCREASE SPEED TO three zero zero KNOTS, \
-            RADAR TURN RIGHT HEADING two five zero, air india one two three
+            RADAR INCREASE SPEED TO tree zero zero KNOTS, \
+            RADAR TURN RIGHT HEADING two fife zero, air india one two tree
             """)
     }
 
@@ -200,7 +200,7 @@ final class ReadbackTests: XCTestCase {
         let result = recognizer.recognize(
             "air india 123 turn left heading 270 reduce speed to 250 knots descend to flight level 180")
         let spoken = try XCTUnwrap(result.composedReadbacks().first?.spoken)
-        XCTAssertEqual(spoken.components(separatedBy: "air india one two three").count - 1, 1)
+        XCTAssertEqual(spoken.components(separatedBy: "air india one two tree").count - 1, 1)
     }
 
     func testEachAircraftGetsItsOwnReply() throws {
@@ -211,14 +211,14 @@ final class ReadbackTests: XCTestCase {
         XCTAssertEqual(replies[0].callsign, "air india 123")
         XCTAssertTrue(try XCTUnwrap(replies[0].spoken).contains("two zero zero"))
         XCTAssertEqual(replies[1].callsign, "baw17")
-        XCTAssertTrue(try XCTUnwrap(replies[1].spoken).contains("zero nine zero"))
+        XCTAssertTrue(try XCTUnwrap(replies[1].spoken).contains("zero niner zero"))
     }
 
     func testAnInstructionNeedingNoReadbackIsLeftOutOfTheReply() throws {
         let result = recognizer.recognize("air india 123 turn right heading 250 roger")
         let spoken = try XCTUnwrap(result.composedReadbacks().first?.spoken)
-        XCTAssertTrue(spoken.contains("TURN RIGHT HEADING two five zero"))
-        XCTAssertEqual(spoken.components(separatedBy: "air india one two three").count - 1, 1)
+        XCTAssertTrue(spoken.contains("TURN RIGHT HEADING two fife zero"))
+        XCTAssertEqual(spoken.components(separatedBy: "air india one two tree").count - 1, 1)
     }
 
     // MARK: - Every template renders
