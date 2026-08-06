@@ -37,6 +37,17 @@ export async function parse(command: string): Promise<ParserResult> {
   return JSON.parse(json) as ParserResult;
 }
 
+/**
+ * Clean a raw transcript for display: recogniser-quirk fixups + ICAO spellings,
+ * uppercased. Use for the text field so it matches what the parser matches.
+ */
+export async function displayText(transcript: string): Promise<string> {
+  if (Platform.OS !== 'ios') {
+    throw new Error('@ishant89/atc-parser-kit currently supports iOS only.');
+  }
+  return ATCParserModule.displayText(transcript);
+}
+
 import { Recognizer } from './recognizer';
 
-export default { parse, Recognizer };
+export default { parse, displayText, Recognizer };

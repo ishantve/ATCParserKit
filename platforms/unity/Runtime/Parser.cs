@@ -48,6 +48,9 @@ namespace ATCParserKit
 
         [DllImport("__Internal")]
         private static extern void atc_parser_free(IntPtr pointer);
+
+        [DllImport("__Internal")]
+        private static extern IntPtr atc_display_text(string transcript);
 #endif
 
         /// <summary>
@@ -62,6 +65,24 @@ namespace ATCParserKit
             string json = Marshal.PtrToStringAnsi(pointer);
             atc_parser_free(pointer);
             return JsonUtility.FromJson<ParserResult>(json);
+#else
+            throw new NotSupportedException(
+                "ATCParserKit runs natively on iOS device/simulator builds only.");
+#endif
+        }
+
+        /// <summary>
+        /// Clean a raw transcript for display: recogniser-quirk fixups + ICAO
+        /// spellings, uppercased (see TranscriptCleaner). Throws on non-iOS targets.
+        /// </summary>
+        public static string DisplayText(string transcript)
+        {
+#if UNITY_IOS && !UNITY_EDITOR
+            IntPtr pointer = atc_display_text(transcript);
+            if (pointer == IntPtr.Zero) { return ""; }
+            string text = Marshal.PtrToStringAnsi(pointer);
+            atc_parser_free(pointer);
+            return text;
 #else
             throw new NotSupportedException(
                 "ATCParserKit runs natively on iOS device/simulator builds only.");

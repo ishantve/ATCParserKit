@@ -27,7 +27,16 @@ func atc_parser_parse(_ command: UnsafePointer<CChar>?) -> UnsafeMutablePointer<
     return strdup(json)
 }
 
-/// Free a string previously returned by `atc_parser_parse`.
+/// Clean a raw transcript for display: recogniser-quirk fixups + ICAO spellings,
+/// uppercased (see TranscriptCleaner). Returned pointer is strdup'd — free it with
+/// `atc_parser_free`.
+@_cdecl("atc_display_text")
+func atc_display_text(_ transcript: UnsafePointer<CChar>?) -> UnsafeMutablePointer<CChar>? {
+    let input = transcript.map { String(cString: $0) } ?? ""
+    return strdup(TranscriptCleaner.displayText(input))
+}
+
+/// Free a string previously returned by `atc_parser_parse` / `atc_display_text`.
 @_cdecl("atc_parser_free")
 func atc_parser_free(_ pointer: UnsafeMutablePointer<CChar>?) {
     free(pointer)

@@ -26,5 +26,14 @@ final class ATCParserModule: NSObject {
     }
   }
 
+  /// Clean a raw transcript for display: recogniser-quirk fixups + ICAO spellings,
+  /// uppercased (see TranscriptCleaner).
+  @objc(displayText:resolver:rejecter:)
+  func displayText(_ transcript: String,
+                   resolver resolve: RCTPromiseResolveBlock,
+                   rejecter reject: RCTPromiseRejectBlock) {
+    resolve(TranscriptCleaner.displayText(transcript))
+  }
+
   @objc static func requiresMainQueueSetup() -> Bool { false }
 }

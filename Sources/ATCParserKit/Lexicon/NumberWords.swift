@@ -35,7 +35,7 @@
 
 import Foundation
 
-enum NumberWords {
+public enum NumberWords {
 
     // MARK: - Vocabulary
 
