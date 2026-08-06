@@ -16,6 +16,14 @@ final class TranscriptCleanerTests: XCTestCase {
         XCTAssertEqual(TranscriptCleaner.clean("Turn three"), "Turn tree")
     }
 
+    func testRemovesUnkAndStrayCommas() {
+        XCTAssertEqual(TranscriptCleaner.displayText("descend [unk] flight level 260"),
+                       "DESCEND FLIGHT LEVEL 260")
+        XCTAssertEqual(TranscriptCleaner.displayText("turn left, heading 270"),
+                       "TURN LEFT HEADING 270")
+        XCTAssertEqual(TranscriptCleaner.displayText("[unk]"), "")
+    }
+
     func testWholeWordOnly() {
         // "threefold" must not become "treefold".
         XCTAssertEqual(TranscriptCleaner.displayText("threefold"), "THREEFOLD")

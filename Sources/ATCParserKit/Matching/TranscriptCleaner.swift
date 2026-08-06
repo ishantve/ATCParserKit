@@ -46,7 +46,11 @@ public enum TranscriptCleaner {
     public static func clean(_ raw: String) -> String {
         guard !raw.isEmpty else { return "" }
         let replaced = wordReplacements.reduce(raw) { apply($0, $1) }
-        return foldLeadingCallsign(replaced)
+        let folded = foldLeadingCallsign(replaced)
+        // Collapse whitespace left behind by removals ("[unk]", stray commas) and trim.
+        return folded
+            .replacingOccurrences(of: "[ \\t]+", with: " ", options: .regularExpression)
+            .trimmingCharacters(in: .whitespaces)
     }
 
     /// Folds a LEADING run of two or more ICAO phonetic words into a letter code —
@@ -74,14 +78,24 @@ public enum TranscriptCleaner {
         return cleaned.isEmpty ? "" : cleaned.uppercased()
     }
 
-    /// One whole-word (`\bfrom\b`), case-insensitive replacement.
+    /// Case-insensitive replacement. A `\b` word boundary is added only where the
+    /// rule's edge is a word character — so tokens that start/end with punctuation
+    /// ("[unk]", ",") still match (a `\b[unk]\b` would never fire, because `[` is
+    /// not a word character).
     private static func apply(_ text: String, _ rule: Replacement) -> String {
-        let pattern = "\\b\(NSRegularExpression.escapedPattern(for: rule.from))\\b"
-        guard let regex = try? NSRegularExpression(pattern: pattern, options: [.caseInsensitive]) else {
+        let escaped = NSRegularExpression.escapedPattern(for: rule.from)
+        let left  = (rule.from.first.map(isWordCharacter) ?? false) ? "\\b" : ""
+        let right = (rule.from.last.map(isWordCharacter) ?? false) ? "\\b" : ""
+        guard let regex = try? NSRegularExpression(pattern: left + escaped + right,
+                                                   options: [.caseInsensitive]) else {
             return text
         }
         let range = NSRange(text.startIndex..., in: text)
         let template = NSRegularExpression.escapedTemplate(for: rule.to)
         return regex.stringByReplacingMatches(in: text, options: [], range: range, withTemplate: template)
+    }
+
+    private static func isWordCharacter(_ c: Character) -> Bool {
+        c.isLetter || c.isNumber || c == "_"
     }
 }
