@@ -6,8 +6,8 @@ final class TranscriptCleanerTests: XCTestCase {
     func testDisplayTextAppliesReplacementsAndUppercases() {
         XCTAssertEqual(TranscriptCleaner.displayText("descend three thousand"),
                        "DESCEND TREE THOUSAND")
-        XCTAssertEqual(TranscriptCleaner.displayText("x-ray alpha juliet"),
-                       "XRAY ALFA JULIETT")
+        // x-ray→xray replacement lets the phonetic run fold to a code (XAJ).
+        XCTAssertEqual(TranscriptCleaner.displayText("x-ray alpha juliet"), "XAJ")
         XCTAssertEqual(TranscriptCleaner.displayText(""), "")
     }
 
@@ -19,6 +19,17 @@ final class TranscriptCleanerTests: XCTestCase {
     func testWholeWordOnly() {
         // "threefold" must not become "treefold".
         XCTAssertEqual(TranscriptCleaner.displayText("threefold"), "THREEFOLD")
+    }
+
+    func testLeadingPhoneticCallsignFolds() {
+        // "Echo Tango Delta" → "ETD" so the callsign matches its aircraft.
+        XCTAssertEqual(TranscriptCleaner.displayText("echo tango delta 615 descend"),
+                       "ETD 615 DESCEND")
+        XCTAssertEqual(TranscriptCleaner.clean("Echo Tango Delta 615"), "ETD 615")
+        // A lone phonetic word (e.g. the airline "Delta") is left alone.
+        XCTAssertEqual(TranscriptCleaner.displayText("delta 615"), "DELTA 615")
+        // A spoken airline name ("air india") is not a phonetic run.
+        XCTAssertEqual(TranscriptCleaner.displayText("air india 235"), "AIR INDIA 235")
     }
 
     func testFragmentDigitsAreSpokenIcaoDigitByDigit() {

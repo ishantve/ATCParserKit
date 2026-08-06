@@ -40,11 +40,32 @@ public enum TranscriptCleaner {
         .init(from: ",", to: ""),
     ]
 
-    /// Applies the replacement rules, preserving case. Feed this to the parser /
-    /// recognizer (which lowercases internally). Returns "" for empty input.
+    /// Applies the replacement rules + folds a phonetically-spelled leading
+    /// callsign, preserving case. Feed this to the parser / recognizer (which
+    /// lowercases internally). Returns "" for empty input.
     public static func clean(_ raw: String) -> String {
         guard !raw.isEmpty else { return "" }
-        return wordReplacements.reduce(raw) { apply($0, $1) }
+        let replaced = wordReplacements.reduce(raw) { apply($0, $1) }
+        return foldLeadingCallsign(replaced)
+    }
+
+    /// Folds a LEADING run of two or more ICAO phonetic words into a letter code —
+    /// "echo tango delta 615 …" → "ETD 615 …" — so a phonetically-spelled callsign
+    /// matches its aircraft (e.g. ETD615) and displays as the code. Only the
+    /// leading run (the callsign position) and only ≥2 words, so a lone "delta" /
+    /// "victor" (an airline name or a plain word) is left alone; mid-command fixes
+    /// fold through the parser's own fix handling instead.
+    private static func foldLeadingCallsign(_ text: String) -> String {
+        let tokens = text.split(separator: " ", omittingEmptySubsequences: true).map(String.init)
+        var code = ""
+        var index = 0
+        while index < tokens.count, let letter = Lexicon.phoneticToLetter[tokens[index].lowercased()] {
+            code += letter
+            index += 1
+        }
+        guard code.count >= 2 else { return text }
+        let rest = tokens[index...].joined(separator: " ")
+        return rest.isEmpty ? code : code + " " + rest
     }
 
     /// Cleaned transcript, uppercased for display in a text field.
