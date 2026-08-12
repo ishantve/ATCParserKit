@@ -4,6 +4,46 @@ All notable changes to this project are documented here. The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and this project
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] - 2026-08-12
+
+One shared transcript cleanup for the parser and the screen. **Additive** — nothing in 1.x,
+1.2.0 or 1.3.0 changed. Full notes: [docs/releases/1.4.0.md](docs/releases/1.4.0.md).
+
+### Added
+- **`TranscriptCleaner`** (`Sources/ATCParserKit/Matching/TranscriptCleaner.swift`) — the
+  recognizer-quirk fixups every consumer was doing itself: hyphen folding (`take-off` →
+  `takeoff`), ICAO spellings (`juliet` → `juliett`, `alpha` → `alfa`, `three` → `tree`), and
+  removal of `[unk]` and stray commas. `clean` preserves case for the parser (the matcher
+  lowercases internally); `displayText` uppercases for a text field. Whole-word,
+  case-insensitive, applied in order — and the `\b` boundary is added only where the rule's
+  own edge is a word character, so `[unk]` actually matches while `threefold` stays intact.
+- **`TranscriptNormalizer` runs `clean` as step 0**, so the recognition path and the display
+  share one cleanup instead of drifting apart.
+- **Leading phonetic callsign folds to a code** — `"echo tango delta 615"` → `"ETD 615"`, so a
+  spelled-out callsign matches its aircraft. Leading run only (the callsign position) and two
+  or more words only, so a lone `delta` (an airline, a plain word) is left alone.
+- **ICAO digit spellings in spoken output** — `spokenDigits` reads 3/4/5/9 as
+  `tree` / `fower` / `fife` / `niner`, matching how a controller reads a heading, level,
+  squawk or callsign aloud.
+- **`NumberWords.spokenFragment`** (and `NumberWords` is now `public`) — renders an arbitrary
+  fragment for speech with digit runs read digit-by-digit: `"emirates 22 5"` →
+  `"emirates two two fife"`. For the "say again" case, where handing `22` to a synthesiser
+  would otherwise produce "twenty two".
+- **`displayText` on every platform** — C ABI `atc_display_text` (free with
+  `atc_parser_free`), React Native `displayText(transcript)`, Unity `Parser.DisplayText`.
+  String in, string out, so it needs no handle.
+- Tests: **177**, up from 170.
+
+### Fixed
+- The stray-comma rule ran inside `clean`, which `TranscriptNormalizer` calls *before* it
+  looks for clause punctuation — so a two-aircraft transmission
+  (`"… report passing PJ, speedbird 45 …"`) lost its split and produced one readback instead
+  of two. Commas are now dropped in `displayText` only: the screen has none, the matcher still
+  sees where a clause ended.
+
+### Changed
+- CI verifies **seven** exported C symbols in both xcframework slices, up from six.
+
 ## [1.3.0] - 2026-08-03
 
 The template API reaches React Native and Unity. **Additive** — nothing in 1.x or 1.2.0

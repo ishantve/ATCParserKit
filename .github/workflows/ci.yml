@@ -49,11 +49,12 @@ jobs:
             LIB="platforms/unity/Runtime/Plugins/iOS/ATCParserFFI.xcframework/$SLICE/libATCParserFFI.a"
             for SYMBOL in atc_parser_parse atc_parser_free \
                           atc_recognizer_create atc_recognizer_recognize \
-                          atc_recognizer_diagnostics atc_recognizer_release; do
+                          atc_recognizer_diagnostics atc_recognizer_release \
+                          atc_display_text; do
               nm "$LIB" | grep -q "T _$SYMBOL" || {
                 echo "::error::missing $SYMBOL in $SLICE"; exit 1; }
             done
-            echo "$SLICE: all 6 C symbols present."
+            echo "$SLICE: all 7 C symbols present."
           done
 
   react-native:

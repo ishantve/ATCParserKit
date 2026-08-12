@@ -13,7 +13,7 @@ air-traffic-control transcript into a structured, JSON-ready result. The parsing
 Native, Unity — is a thin wrapper over that same core, so there is a single source of truth
 and no duplicated logic.
 
-**Current release: `1.3.0`** ([release notes](docs/releases/1.3.0.md)). Available on Swift
+**Current release: `1.4.0`** ([release notes](docs/releases/1.4.0.md)). Available on Swift
 Package Manager and Unity (git) today; CocoaPods and npm serve the latest published version
 (see each section).
 
@@ -74,6 +74,10 @@ using (var recognizer = Recognizer.Create(payloadJson))    // Unity
 - Spoken-digit expansion (`"two seven zero"` → `270`), tens words (`"seventy"` → `70`) and
   ICAO phonetics (`"papa juliet"` → `PJ`) — speech transcripts arrive as words,
   inconsistently, and all forms parse to the same value.
+- Transcript cleanup shared with the display (`TranscriptCleaner`): recognizer-quirk fixups,
+  ICAO spellings, `[unk]` removal, and a spelled-out leading callsign folded to its code
+  (`"echo tango delta 615"` → `"ETD 615"`). Available as `displayText` from Swift, TypeScript
+  and C#, so the text on screen is the text that was matched.
 
 **Built-in commands (`ATCParser`)**
 
@@ -98,14 +102,14 @@ using (var recognizer = Recognizer.Create(payloadJson))    // Unity
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/ishantve/ATCParserKit.git", from: "1.3.0")
+    .package(url: "https://github.com/ishantve/ATCParserKit.git", from: "1.4.0")
 ]
 ```
 
 ### CocoaPods
 
 ```ruby
-pod 'ATCParserKit', '~> 1.3'
+pod 'ATCParserKit', '~> 1.4'
 ```
 
 ### React Native (iOS)
@@ -126,7 +130,7 @@ See [platforms/react-native](platforms/react-native/README.md).
 Add via **Package Manager → Add package from git URL**:
 
 ```
-https://github.com/ishantve/ATCParserKit.git?path=platforms/unity#1.3.0
+https://github.com/ishantve/ATCParserKit.git?path=platforms/unity#1.4.0
 ```
 
 ```csharp
@@ -234,6 +238,8 @@ omitted. `type` is one of: `heading`, `headingTurn`, `relativeTurn`,
 - [x] **1.2.0** — template-driven recognition, multi-command, readbacks ([notes](docs/releases/1.2.0.md))
 - [x] **1.3.0** — the template API on React Native and Unity too, over a handle-based
       bridge ([notes](docs/releases/1.3.0.md))
+- [x] **1.4.0** — shared transcript cleanup (`TranscriptCleaner` / `displayText`), phonetic
+      callsign folding, ICAO spoken digits ([notes](docs/releases/1.4.0.md))
 - [ ] **Later** — Android / desktop support (would mean a second implementation; not planned
       while Swift is the single source of truth)
 

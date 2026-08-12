@@ -14,7 +14,7 @@ Add to your project's `Packages/manifest.json`:
 ```json
 {
   "dependencies": {
-    "com.ishantve.atcparserkit": "https://github.com/ishantve/ATCParserKit.git?path=platforms/unity#1.3.0"
+    "com.ishantve.atcparserkit": "https://github.com/ishantve/ATCParserKit.git?path=platforms/unity#1.4.0"
   }
 }
 ```
@@ -22,7 +22,7 @@ Add to your project's `Packages/manifest.json`:
 …or **Window → Package Manager → + → Add package from git URL**:
 
 ```
-https://github.com/ishantve/ATCParserKit.git?path=platforms/unity#1.3.0
+https://github.com/ishantve/ATCParserKit.git?path=platforms/unity#1.4.0
 ```
 
 ## Usage
@@ -45,6 +45,18 @@ foreach (var c in result.commands)
 
 `ParserResult` / `ParsedCommand` mirror the JSON contract; each command carries
 only the fields relevant to its `type`.
+
+### Cleaning a transcript for display
+
+```csharp
+transcriptLabel.text = Parser.DisplayText(rawFromSpeechRecognizer);
+// "echo tango delta 615 take-off"  →  "ETD 615 TAKEOFF"
+```
+
+Applies the recognizer-quirk fixups the parser applies (hyphen folding, ICAO spellings,
+`[unk]` and stray commas removed, a spelled-out leading callsign folded to its code) and
+uppercases the result. Use it for anything you show on screen, so the label and the parser
+agree on what was said.
 
 ## Your own phraseology
 
@@ -92,6 +104,11 @@ real heading.
 ## How it works
 
 ```
+C# Parser.DisplayText(raw)
+  → atc_display_text(raw)     [DllImport("__Internal")]
+  → TranscriptCleaner.displayText   (Swift, ATCParserKit)
+  → cleaned C string → atc_parser_free(ptr)
+
 C# Parser.Parse(cmd)
   → atc_parser_parse(cmd)     [DllImport("__Internal")]  (C ABI, ATCParserFFI)
   → ATCParser().parseToJSON   (Swift, ATCParserKit)

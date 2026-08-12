@@ -33,6 +33,20 @@ const result = await parse('air canada 125 climb flight level 250 turn left head
 // }
 ```
 
+### Cleaning a transcript for display
+
+```ts
+import { displayText } from '@ishant89/atc-parser-kit';
+
+setTranscript(await displayText(rawFromSpeechRecognizer));
+// 'echo tango delta 615 take-off'  →  'ETD 615 TAKEOFF'
+```
+
+Applies the recognizer-quirk fixups the parser applies (hyphen folding, ICAO spellings,
+`[unk]` and stray commas removed, a spelled-out leading callsign folded to its code) and
+uppercases the result. Use it for anything you render, so the text field and the parser agree
+on what was said.
+
 ### Types
 
 ```ts
@@ -87,6 +101,10 @@ recognizer.dispose();   // e.g. on unmount
 
 Parses `command` against the built-in commands and resolves with the structured result.
 Rejects on empty input or on non-iOS platforms.
+
+### `displayText(transcript: string): Promise<string>`
+
+Cleans a raw transcript and uppercases it for display. Rejects on non-iOS platforms.
 
 ### `Recognizer`
 
