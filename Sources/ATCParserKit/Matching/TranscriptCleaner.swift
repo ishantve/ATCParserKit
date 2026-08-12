@@ -37,7 +37,6 @@ public enum TranscriptCleaner {
         .init(from: "air taxi", to: "airtaxi"),
         .init(from: "alpha", to: "alfa"),
         .init(from: "[unk]", to: ""),   // recognizer's unknown-word token
-        .init(from: ",", to: ""),
     ]
 
     /// Applies the replacement rules + folds a phonetically-spelled leading
@@ -46,10 +45,12 @@ public enum TranscriptCleaner {
     public static func clean(_ raw: String) -> String {
         guard !raw.isEmpty else { return "" }
         let replaced = wordReplacements.reduce(raw) { apply($0, $1) }
-        let folded = foldLeadingCallsign(replaced)
-        // Collapse whitespace left behind by removals ("[unk]", stray commas) and trim.
-        return folded
-            .replacingOccurrences(of: "[ \\t]+", with: " ", options: .regularExpression)
+        return collapsingSpaces(foldLeadingCallsign(replaced))
+    }
+
+    /// Collapses whitespace left behind by removals ("[unk]", stray commas) and trims.
+    private static func collapsingSpaces(_ text: String) -> String {
+        text.replacingOccurrences(of: "[ \\t]+", with: " ", options: .regularExpression)
             .trimmingCharacters(in: .whitespaces)
     }
 
@@ -73,8 +74,13 @@ public enum TranscriptCleaner {
     }
 
     /// Cleaned transcript, uppercased for display in a text field.
+    ///
+    /// Stray commas are dropped **here and not in `clean`**: the parsing path reads a
+    /// comma as a clause boundary (see `TranscriptNormalizer`), which is how two
+    /// aircraft in one transmission stay separate. Stripping them for every caller
+    /// merged those into a single readback.
     public static func displayText(_ raw: String) -> String {
-        let cleaned = clean(raw)
+        let cleaned = collapsingSpaces(apply(clean(raw), Replacement(from: ",", to: "")))
         return cleaned.isEmpty ? "" : cleaned.uppercased()
     }
 

@@ -24,6 +24,17 @@ final class TranscriptCleanerTests: XCTestCase {
         XCTAssertEqual(TranscriptCleaner.displayText("[unk]"), "")
     }
 
+    /// A comma must survive `clean`: `TranscriptNormalizer` reads it as a clause
+    /// boundary, which is how two aircraft in one transmission stay separate (see
+    /// `RecognitionWireTests.testReadbacksArriveGroupedPerAircraft`). Only the display
+    /// drops it.
+    func testCleanKeepsCommasSoClauseBoundariesSurvive() {
+        XCTAssertEqual(TranscriptCleaner.clean("turn left, heading 270"),
+                       "turn left, heading 270")
+        XCTAssertEqual(TranscriptCleaner.displayText("turn left, heading 270"),
+                       "TURN LEFT HEADING 270")
+    }
+
     func testWholeWordOnly() {
         // "threefold" must not become "treefold".
         XCTAssertEqual(TranscriptCleaner.displayText("threefold"), "THREEFOLD")
